@@ -76,6 +76,12 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+  -- github copilot
+  {
+    "github/copilot.vim",
+    lazy=false,
+  },
+
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -217,6 +223,20 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
 
+  -- amongst your other plugins
+  {'akinsho/toggleterm.nvim', version = "*", config = true},
+
+  {
+      "nvim-neo-tree/neo-tree.nvim",
+      branch = "v3.x",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+        "MunifTanjim/nui.nvim",
+        -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+      }
+  },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -286,8 +306,8 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+-- vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -371,6 +391,45 @@ vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>e', "<CMD>Neotree toggle<CR>")
+vim.keymap.set('n', '<leader>o', "<CMD>Neotree focus<CR>")
+vim.keymap.set('i', 'jk', "<ESC>")
+vim.keymap.set('n', '<leader>w', "<CMD>update<CR>")
+vim.keymap.set('n', '<leader>th', "<CMD>ToggleTerm size=15 direction=horizontal<CR>")
+vim.keymap.set('n', '<leader>tv', "<CMD>ToggleTerm size=80 direction=vertical<CR>")
+vim.keymap.set('n', '<leader>q', '<CMD>q<CR>')
+
+-- toggleterm and lazygit setting
+local status, toggleterm = pcall(require, "toggleterm")
+
+if not status then
+    return
+end
+
+toggleterm.setup({
+    size = 10,
+    open_mapping = [[<F7>]],
+    shading_factor = 2,
+    direction = "float",
+    float_opts = {
+        border = "curved",
+        highlights = {
+            border = "Normal",
+            background = "Normal",
+        },
+    },
+})
+
+local Terminal = require("toggleterm.terminal").Terminal
+local lazygit = Terminal:new({
+	cmd = "lazygit",
+	direction = "float",
+	hidden = true
+})
+function _lazygit_toggle()
+	lazygit:toggle()
+end
+vim.api.nvim_set_keymap("n", "lg", "<cmd>lua _lazygit_toggle()<CR>", { noremap = true, silent = true })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
