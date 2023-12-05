@@ -2,3 +2,5 @@ tags
 test.sh
 .luarc.json
 nvim
+pack/github/start/copilot.vim
+lazy-lock.json
