@@ -69,6 +69,26 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
+  -- neovim transparent
+  {
+    "xiyaowong/nvim-transparent",
+    config = function()
+      require("transparent").setup({
+        extra_groups = {
+          "BufferLineTabClose",
+          "BufferlineBufferSelected",
+          "BufferLineFill",
+          "BufferLineBackground",
+          "BufferLineSeparator",
+          "BufferLineIndicatorSelected",
+          "NormalFloat", -- plugins which have float panel such as Lazy, Mason, LspInfo
+          "NvimTreeNormal" -- NvimTree
+        },
+        exclude_group={},
+      })
+    end,
+  },
+
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
