@@ -111,7 +111,22 @@ require('lazy').setup({
   -- github copilot
   {
     "github/copilot.vim",
-    lazy=false,
+      config = function()
+      vim.g.copilot_no_tab_map = true
+
+      local keymap = vim.keymap.set
+      -- https://github.com/orgs/community/discussions/29817#discussioncomment-4217615
+      keymap(
+        "i",
+        "<C-g>",
+        'copilot#Accept("<CR>")',
+        { silent = true, expr = true, script = true, replace_keycodes = false }
+      )
+      keymap("i", "<C-j>", "<Plug>(copilot-next)")
+      keymap("i", "<C-k>", "<Plug>(copilot-previous)")
+      keymap("i", "<C-o>", "<Plug>(copilot-dismiss)")
+      keymap("i", "<C-s>", "<Plug>(copilot-suggest)")
+    end,
   },
 
   -- NOTE: This is where your plugins related to LSP can be installed.
@@ -191,13 +206,21 @@ require('lazy').setup({
   },
 
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'onedark'
-    end,
+  -- Theme inspired by Atom
+     'navarasu/onedark.nvim',
+     priority = 1000,
+     config = function()
+       vim.cmd.colorscheme 'onedark'
+     end,
   },
+--  {
+--    "andreypopp/vim-colors-plain",
+--    lazy = false,
+--    priority = 1000,
+--    config = function()
+--      vim.cmd("colorscheme plain")
+--    end,
+--  },
 
   {
     -- Set lualine as statusline
@@ -603,12 +626,51 @@ require('mason-lspconfig').setup()
 --  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
-  -- gopls = {},
+  gopls = {
+    analyses = {
+      unusedparams = true,
+    },
+    staticcheck = true,
+    gofumpt = true,
+  },
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
-
+  tsserver = {
+    filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+    cmd = { "typescript-language-server", "--stdio" },
+    init_options = {
+      preferences = {
+        disableSuggestions = false,
+        importModuleSpecifierPreference = "relative",
+      },
+    },
+    settings = {
+      typescript = {
+        inlayHints = {
+          includeInlayParameterNameHints = "all",
+          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
+        },
+      },
+      javascript = {
+        inlayHints = {
+          includeInlayParameterNameHints = "all",
+          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
+        },
+      },
+    },
+  },
+  html = { filetypes = { 'html', 'twig', 'hbs'} },
+ 
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -628,7 +690,6 @@ capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
-
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
